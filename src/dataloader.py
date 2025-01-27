@@ -6,9 +6,9 @@ from PIL import Image
 
 
 class MiceHeartDataset(Dataset):
-    def __init__(self, image_path, resolution = 256, transform=None, train=True):
+    def __init__(self, image_path, resolution = 256, transform=None):
         self.image_path = image_path
-        self.image_names = os.listdir(image_path+"/original")[:-8] if train else os.listdir(image_path+"/original")[-8:]
+        self.image_names = os.listdir(image_path+"/original")
         self.transform = transform
         self.resolution = resolution
 
