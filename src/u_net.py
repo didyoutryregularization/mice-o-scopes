@@ -55,6 +55,7 @@ class Decoder(nn.Module):
     
 class Unet(nn.Module):
     def __init__(self, feature_sizes=(3, 64, 128, 256, 512, 1024)):
+        super().__init__()
         self.encoder = Encoder(feature_sizes=feature_sizes)
         self.decoder = Decoder(feature_sizes=feature_sizes[::-1][:-1]) # Reverse and skip last
 

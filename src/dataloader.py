@@ -3,6 +3,7 @@ import torch
 import os
 from torchvision.transforms import ToTensor
 from PIL import Image
+import numpy as np
 
 
 class MiceHeartDataset(Dataset):
@@ -16,10 +17,8 @@ class MiceHeartDataset(Dataset):
         return len(self.image_names)
 
     def __getitem__(self, idx):
-        image_x = ToTensor()(Image.open(self.image_path + "/original/" + self.image_names[idx]).resize((self.resolution,self.resolution)))
-        image_y = ToTensor()(Image.open(self.image_path + "/labeled/" + self.image_names[idx]).resize((self.resolution,self.resolution)))
-
-        image_y = (image_y!=0)
+        image_x = ToTensor()((np.array(Image.open(self.image_path + "/original/" + self.image_names[idx]).resize((self.resolution,self.resolution)))))/255
+        image_y = ToTensor()((np.array(Image.open(self.image_path + "/labeled/" + self.image_names[idx]).resize((self.resolution,self.resolution)), dtype=bool)))
 
         if self.transform:
             image_x = self.transform(image_x)
