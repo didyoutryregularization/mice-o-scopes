@@ -53,7 +53,7 @@ class Decoder(nn.Module):
         x = self.final_layer(x)
         return x
     
-class Unet(nn.Module):
+class UNet(nn.Module):
     def __init__(self, feature_sizes=(3, 64, 128, 256, 512, 1024)):
         super().__init__()
         self.encoder = Encoder(feature_sizes=feature_sizes)
