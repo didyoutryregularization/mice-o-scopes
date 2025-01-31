@@ -85,6 +85,6 @@ def copy_config_files(experiment_folder: str):
         experiment_folder (str): Path to the experiment folder.
     """
     # Copy config.py
-    shutil.copy("config.py", os.path.join(experiment_folder, "config"))
+    shutil.copy("src/config.py", os.path.join(experiment_folder, "config"))
     # Copy experiment.yaml
-    shutil.copy("experiment.yaml", os.path.join(experiment_folder, "config"))
+    shutil.copy("src/experiment.yaml", os.path.join(experiment_folder, "config"))

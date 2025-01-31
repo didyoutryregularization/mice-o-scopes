@@ -23,7 +23,7 @@ def train_model(cfg: CfgNode):
     # Enable CuDNN benchmark for optimized performance
     torch.backends.cudnn.benchmark = cfg.TRAINING.cudnn_benchmark
 
-    model = UNet(cfg.TRAINING.feature_sizes)
+    model = UNet(cfg.MODEL.feature_sizes)
     model.cuda()
 
     dataset_train = MiceHeartDataset(
@@ -45,7 +45,7 @@ def train_model(cfg: CfgNode):
 
     optimizer_class = get_optimizer_class(optimizer_string=cfg.TRAINING.optimizer)
     optimizer = optimizer_class(
-        model.parameters(), **cfg.TRAINING.optimizer_hyperparameters
+        model.parameters(), lr = cfg.TRAINING.learning_rate
     )
 
     scaler = torch.amp.GradScaler(device="cuda")
@@ -151,7 +151,7 @@ def test_best_models(experiment_folder: str, cfg: CfgNode, dataloader_test: Data
 
 if __name__ == "__main__":
     cfg = get_cfg_defaults()
-    cfg.merge_from_file("experiment.yaml")
+    cfg.merge_from_file("src/experiment.yaml")
     cfg.freeze()
     print(cfg)
 

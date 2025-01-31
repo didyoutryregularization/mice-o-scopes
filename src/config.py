@@ -5,7 +5,7 @@ _C = CN()
 
 _C.TRAINING = CN()
 # Number of Epochs
-_C.TRAINING.EPOCHS = 100
+_C.TRAINING.EPOCHS = 2
 # Initial Learning Rate for Scheduler
 _C.TRAINING.inital_learning_rate = 0.001
 # Final Learning Rate for Scheduler
@@ -17,12 +17,9 @@ _C.TRAINING.loss_function = "dice"  # one out [dice, dicece, ce]
 # Optimizer to use
 _C.TRAINING.optimizer = "adam"  # Adam, Adamw, RMSprop
 # Optimizer hyperparameters
-_C.TRAINING.optimizer_hyperparameters = {
-    "lr": 0.001,
-    "betas": (0.9, 0.999),
-    "eps": 1e-08,
-    "weight_decay": 0,
-}
+_C.TRAINING.learning_rate = 0.001
+# Batch size
+_C.TRAINING.batch_size = 2
 
 _C.MODEL = CN()
 # Feature sizes of UNet
