@@ -39,6 +39,9 @@ def train_model(cfg: CfgNode):
 
     seg_loss = get_loss_function(loss_function_string=cfg.TRAINING.loss_function)
 
+    loss_history_train = []
+    loss_history_val = []
+
     best_iou_score = 0
     best_dice_score = 0
 
@@ -51,9 +54,13 @@ def train_model(cfg: CfgNode):
             scaler=scaler,
             seg_loss=seg_loss,
         )
+        loss_history_train.append(statistics.mean(loss_values_train))
+
         loss_values_val = validate_one_epoch(
             model=model, dataloader_val=dataloader_val, seg_loss=seg_loss
         )
+        loss_history_val.append(statistics.mean(loss_values_val))
+
         dice_score, iou_score = compute_evaluation(model, dataloader_val)
 
         if dice_score > best_dice_score or iou_score > best_iou_score:
