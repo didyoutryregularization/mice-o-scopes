@@ -28,6 +28,17 @@ _C.MODEL = CN()
 # Feature sizes of UNet
 _C.MODEL.feature_sizes = (3, 64, 128, 256, 512, 1024)
 
+_C.DATA = CN()
+# Path to training images
+_C.DATA.image_path_train = "data/train"
+# Path to validation images
+_C.DATA.image_path_val = "data/val"
+# Path to test images
+_C.DATA.image_path_test = "data/test"
+# Resolution of images
+_C.DATA.resolution = 256
+
+
 
 def get_cfg_defaults():
     """Get a yacs CfgNode object with default values."""
