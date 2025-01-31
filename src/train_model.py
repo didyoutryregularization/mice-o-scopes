@@ -7,7 +7,7 @@ from yacs.config import CfgNode
 from config import get_cfg_defaults
 from src.dataloader import MiceHeartDataset
 from src.miscellaneous import get_loss_function, get_optimizer_class
-from src.training_loop import train_one_epoch, validate_one_epoch
+from src.training_loop import compute_evaluation, train_one_epoch, validate_one_epoch
 from src.u_net import UNet
 
 
@@ -36,7 +36,8 @@ def train_model(cfg: CfgNode):
 
     seg_loss = get_loss_function(loss_function_string=cfg.TRAINING.loss_function)
 
-    best_evaluation_metric = torch.inf
+    best_iou_score = 0
+    best_dice_score = 0
 
     for i in range(cfg.TRAINING.epochs):
         # Train model
@@ -50,13 +51,15 @@ def train_model(cfg: CfgNode):
         loss_values_val = validate_one_epoch(
             model=model, dataloader_val=dataloader_val, seg_loss=seg_loss
         )
-        evaluation_metric = validate_model(model, dataloader_val, seg_loss)  # TODO: implement evaluation metric
+        dice_score, iou_score = compute_evaluation(model, dataloader_val)
 
-        if evaluation_metric < best_evaluation_metric:
-            pass  # TODO: implement saving logic
+        if dice_score > best_dice_score or iou_score > best_iou_score:
+            best_dice_score = dice_score
+            best_iou_score = iou_score
+            # TODO save model with best scores and all information
 
         print(
-            f"Epoch {i + 1}/{cfg.TRAINING.epochs}: Train loss: {statistics.mean(loss_values_train)}, Validate loss: {statistics.mean(loss_values_val)}, Evaluation metric: {evaluation_metric}"
+            f"Epoch {i + 1}/{cfg.TRAINING.epochs}: Train loss: {statistics.mean(loss_values_train)}, Validate loss: {statistics.mean(loss_values_val)}, Dice Score: {dice_score}, IoU Score: {iou_score}"
         )
 
 
