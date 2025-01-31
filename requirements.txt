@@ -1,0 +1,8 @@
+matplotlib==3.10.0
+monai==1.4.0
+numpy==2.2.2
+Pillow==11.1.0
+torch==2.5.1+cu118
+torchmetrics==1.6.1
+torchvision==0.20.1+cu118
+yacs==0.1.8
