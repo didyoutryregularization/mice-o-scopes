@@ -3,8 +3,9 @@ from typing import List
 
 import torch
 from torch.amp import autocast
+import torch.nn.functional as F
 from torchmetrics.segmentation import DiceScore, MeanIoU
-
+import matplotlib.pyplot as plt
 
 
 def train_one_epoch(
@@ -77,13 +78,14 @@ def validate_one_epoch(model, dataloader_val, seg_loss) -> List[int]:
     return loss_hist_val
 
 
-def compute_evaluation(model, dataloader_evaluation):
+def compute_evaluation(model, dataloader_evaluation, image_predictions_path=False):
     """
     Compute evaluation metric for model.
 
     Args:
         model (torch.nn.Module): The UNet model. Either "dice" or "iou"
         dataloader_evaluation (DataLoader): DataLoader for evaluation data.
+        image_predictions_path (str): Path to save the image predictions.
 
     Returns:
         int: Evaluation metric.
@@ -97,8 +99,30 @@ def compute_evaluation(model, dataloader_evaluation):
             inputs, labels = data
             inputs = inputs.cuda()
             labels = labels.cuda().float()
-            outputs = model(inputs)
+            outputs = F.sigmoid(model(inputs))
             dice_scores.append(DiceScore(num_classes=1)(outputs, labels).item())
             iou_scores.append(MeanIoU(num_classes=1)(outputs, labels).item())
 
+            if image_predictions_path:
+                # Save image predictions
+                save_image_predictions(inputs, outputs, labels, image_predictions_path)
+
     return statistics.mean(dice_scores), statistics.mean(iou_scores)
+
+
+def save_image_predictions(inputs, outputs, labels, image_predictions_path):
+    """
+    Save image predictions to disk.
+
+    Args:
+        inputs (torch.Tensor): Input images.
+        outputs (torch.Tensor): Predicted masks.
+        labels (torch.Tensor): Ground truth masks.
+        image_predictions_path (str): Path to save the image predictions.
+    """
+    f, axarr = plt.subplots(1, 3, figsize=(10, 5))
+    axarr[0].imshow(inputs[0].permute(1, 2, 0))
+    axarr[1].imshow(labels[0][0])
+    axarr[2].imshow(outputs[0][0])
+    plt.show()
+    plt.savefig(image_predictions_path, dpi=300)
