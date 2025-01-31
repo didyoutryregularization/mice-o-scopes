@@ -12,6 +12,9 @@ from src.u_net import UNet
 
 
 def train_model(cfg: CfgNode):
+    # Enable CuDNN benchmark for optimized performance
+    torch.backends.cudnn.benchmark = cfg.TRAINING.cudnn_benchmark
+
     model = UNet(cfg.TRAINING.feature_sizes)
     model.cuda()
 

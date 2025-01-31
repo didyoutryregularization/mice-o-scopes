@@ -1,4 +1,3 @@
-import configparser
 import statistics
 from typing import List
 
@@ -6,13 +5,6 @@ import torch
 from torch.amp import autocast
 from torchmetrics.segmentation import DiceScore, MeanIoU
 
-config = configparser.ConfigParser()
-config.read("config.ini")
-
-
-# Enable CuDNN benchmark for optimized performance
-if config["Training"].getboolean("cudnn_benchmark"):
-    torch.backends.cudnn.benchmark = True
 
 
 def train_one_epoch(
