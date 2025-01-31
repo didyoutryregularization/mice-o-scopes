@@ -1,8 +1,20 @@
+import sys
+import os
+
+# Get the root of the project directory (assuming this script is inside the 'src' directory)
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+# Add the project root to the Python path (not just the 'src' directory)
+sys.path.append(project_root)
+
 import statistics
 
 import torch
 from torch.utils.data import DataLoader
 from yacs.config import CfgNode
+from PIL import Image
+import PIL
+PIL.Image.MAX_IMAGE_PIXELS = 9331200009
 
 from config import get_cfg_defaults
 from src.dataloader import MiceHeartDataset
@@ -23,7 +35,7 @@ def train_model(cfg: CfgNode):
     # Enable CuDNN benchmark for optimized performance
     torch.backends.cudnn.benchmark = cfg.TRAINING.cudnn_benchmark
 
-    model = UNet(cfg.TRAINING.feature_sizes)
+    model = UNet(cfg.MODEL.feature_sizes)
     model.cuda()
 
     dataset_train = MiceHeartDataset(
@@ -45,7 +57,7 @@ def train_model(cfg: CfgNode):
 
     optimizer_class = get_optimizer_class(optimizer_string=cfg.TRAINING.optimizer)
     optimizer = optimizer_class(
-        model.parameters(), **cfg.TRAINING.optimizer_hyperparameters
+        model.parameters(), cfg.TRAINING.learning_rate
     )
 
     scaler = torch.amp.GradScaler(device="cuda")
@@ -116,7 +128,7 @@ def test_best_models(experiment_folder: str, cfg: CfgNode, dataloader_test: Data
         experiment_folder (str): Path to the experiment folder.
     """
     # Test best dice model
-    model = UNet(cfg.TRAINING.feature_sizes)
+    model = UNet(cfg.MODEL.feature_sizes)
     model.cuda()
     model.load_state_dict(
         torch.load(f"{experiment_folder}/checkpoints/model_best_dice.pth")
@@ -128,7 +140,7 @@ def test_best_models(experiment_folder: str, cfg: CfgNode, dataloader_test: Data
     )
 
     # Test best iou model
-    model = UNet(cfg.TRAINING.feature_sizes)
+    model = UNet(cfg.MODEL.feature_sizes)
     model.cuda()
     model.load_state_dict(
         torch.load(f"{experiment_folder}/checkpoints/model_best_iou.pth")
@@ -151,7 +163,7 @@ def test_best_models(experiment_folder: str, cfg: CfgNode, dataloader_test: Data
 
 if __name__ == "__main__":
     cfg = get_cfg_defaults()
-    cfg.merge_from_file("experiment.yaml")
+    cfg.merge_from_file("src/experiment.yaml")
     cfg.freeze()
     print(cfg)
 
