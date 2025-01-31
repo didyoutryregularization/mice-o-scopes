@@ -1,7 +1,10 @@
+import configparser
+import statistics
 from typing import List
+
 import torch
 from torch.amp import autocast
-import configparser
+from torchmetrics.segmentation import DiceScore, MeanIoU
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -60,7 +63,7 @@ def validate_one_epoch(model, dataloader_val, seg_loss) -> List[int]:
 
     Args:
         model (torch.nn.Module): The UNet model.
-        dataloader_test (DataLoader): DataLoader for test/validation data.
+        dataloader_val (DataLoader): DataLoader for validation data.
         seg_loss (callable): Loss function for segmentation.
 
     Returns:
@@ -80,3 +83,30 @@ def validate_one_epoch(model, dataloader_val, seg_loss) -> List[int]:
             loss_hist_val.append(loss_value_test.item())
 
     return loss_hist_val
+
+
+def compute_evaluation(model, dataloader_evaluation):
+    """
+    Compute evaluation metric for model.
+
+    Args:
+        model (torch.nn.Module): The UNet model. Either "dice" or "iou"
+        dataloader_evaluation (DataLoader): DataLoader for evaluation data.
+
+    Returns:
+        int: Evaluation metric.
+    """
+    dice_scores = []
+    iou_scores = []
+
+    model.eval()
+    with torch.no_grad():
+        for data in dataloader_evaluation:
+            inputs, labels = data
+            inputs = inputs.cuda()
+            labels = labels.cuda().float()
+            outputs = model(inputs)
+            dice_scores.append(DiceScore(num_classes=1)(outputs, labels).item())
+            iou_scores.append(MeanIoU(num_classes=1)(outputs, labels).item())
+
+    return statistics.mean(dice_scores), statistics.mean(iou_scores)
