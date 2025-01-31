@@ -54,9 +54,9 @@ def train_one_epoch(
     return loss_hist_train
 
 
-def test_one_epoch(model, dataloader_test, seg_loss) -> List[int]:
+def validate_one_epoch(model, dataloader_val, seg_loss) -> List[int]:
     """
-    Evaluate the encoder and decoder for one epoch.
+    Validate model for one epoch.
 
     Args:
         model (torch.nn.Module): The UNet model.
@@ -67,16 +67,16 @@ def test_one_epoch(model, dataloader_test, seg_loss) -> List[int]:
         list: List of test losses for each batch.
     """
 
-    loss_hist_test = []
+    loss_hist_val = []
 
     model.eval()
     with torch.no_grad():
-        for data in dataloader_test:
+        for data in dataloader_val:
             inputs, labels = data
             inputs = inputs.cuda()
             labels = labels.cuda().float()
             outputs = model(inputs)
             loss_value_test = seg_loss(outputs, labels)
-            loss_hist_test.append(loss_value_test.item())
+            loss_hist_val.append(loss_value_test.item())
 
-    return loss_hist_test
+    return loss_hist_val
