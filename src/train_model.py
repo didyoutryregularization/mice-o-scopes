@@ -16,7 +16,7 @@ from PIL import Image
 import PIL
 PIL.Image.MAX_IMAGE_PIXELS = 9331200009
 
-from config import get_cfg_defaults
+from src.config import get_cfg_defaults
 from src.dataloader import MiceHeartDataset
 from src.miscellaneous import (
     get_loss_function,
@@ -113,51 +113,39 @@ def train_model(cfg: CfgNode):
     )
     torch.save(loss_history_val, f"{experiment_folder}/metrics/loss_history_val.pth")
     # Test model
-    test_best_models(
+    test_best_model(
         experiment_folder,
         cfg,
         dataloader_test,
     )
 
 
-def test_best_models(experiment_folder: str, cfg: CfgNode, dataloader_test: DataLoader):
+def test_best_model(experiment_folder: str, cfg: CfgNode, dataloader_test: DataLoader, model_metric: str = "dice"):
     """
     Test the best models on the test set. There is model_best_dice.pth and model_best_iou.pth in the checkpoints folder.
 
     Args:
         experiment_folder (str): Path to the experiment folder.
     """
-    # Test best dice model
+    # Test best model of model metric
     model = UNet(cfg.MODEL.feature_sizes)
     model.cuda()
     model.load_state_dict(
-        torch.load(f"{experiment_folder}/checkpoints/model_best_dice.pth")
+        torch.load(f"{experiment_folder}/checkpoints/model_best_{model_metric}.pth")
     )
-    dice_score_test, _ = compute_evaluation(
+    score_test, _ = compute_evaluation(
         model,
         dataloader_test,
-        image_predictions_path=f"{experiment_folder}/predictions/dice",
-    )
-
-    # Test best iou model
-    model = UNet(cfg.MODEL.feature_sizes)
-    model.cuda()
-    model.load_state_dict(
-        torch.load(f"{experiment_folder}/checkpoints/model_best_iou.pth")
-    )
-    _, iou_score_test = compute_evaluation(
-        model,
-        dataloader_test,
-        image_predictions_path=f"{experiment_folder}/predictions/iou",
+        image_predictions_path=f"{experiment_folder}/predictions/{model_metric}",
     )
 
     print(
-        f"Dice Score on test set: {dice_score_test}, IoU Score on test set: {iou_score_test}"
+        f"{model_metric} Score on test set: {score_test}"
     )
 
     # Save dice and iou to metrics folder
-    metrics = {"dice_score_test": dice_score_test, "iou_score_test": iou_score_test}
-    with open(f"{experiment_folder}/metrics/test_scores.json", "w") as f:
+    metrics = {f"{model_metric}_score_test": score_test}
+    with open(f"{experiment_folder}/metrics/test_score_{model_metric}.json", "w") as f:
         json.dump(metrics, f)
 
 
