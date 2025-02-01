@@ -97,7 +97,7 @@ def compute_evaluation(model, dataloader_evaluation, image_predictions_path=Fals
 
     model.eval()
     with torch.no_grad():
-        for data in dataloader_evaluation:
+        for i, data in enumerate(dataloader_evaluation):
             inputs, labels = data
             inputs = inputs.cuda()
             labels = labels.cuda().float()
@@ -108,7 +108,7 @@ def compute_evaluation(model, dataloader_evaluation, image_predictions_path=Fals
 
             if image_predictions_path:
                 # Save image predictions
-                save_image_predictions(inputs, outputs, labels, image_predictions_path)
+                save_image_predictions(inputs, outputs, labels, f"{image_predictions_path}/{i}.png")
 
     return statistics.mean(dice_scores), statistics.mean(iou_scores)
 
