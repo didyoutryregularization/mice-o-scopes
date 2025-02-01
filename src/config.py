@@ -5,7 +5,7 @@ _C = CN()
 
 _C.TRAINING = CN()
 # Number of Epochs
-_C.TRAINING.epochs = 100
+_C.TRAINING.epochs = 500
 # If to use CUdNN Benchmark
 _C.TRAINING.cudnn_benchmark = True
 # Which loss function to use
@@ -13,7 +13,7 @@ _C.TRAINING.loss_function = "dice"  # one out [dice, dicece, ce]
 # Optimizer to use
 _C.TRAINING.optimizer = "adam"  # Adam, Adamw, RMSprop
 # Optimizer hyperparameters
-_C.TRAINING.learning_rate = 0.0001
+_C.TRAINING.learning_rate = 0.0005
 # batchsize
 _C.TRAINING.batch_size = 4
 
