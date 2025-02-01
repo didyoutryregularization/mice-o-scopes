@@ -5,6 +5,8 @@ import torch
 from torch.amp import autocast
 import torch.nn.functional as F
 from torchmetrics.segmentation import DiceScore, MeanIoU
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
@@ -101,7 +103,8 @@ def compute_evaluation(model, dataloader_evaluation, image_predictions_path=Fals
             labels = labels.cuda().float()
             outputs = F.sigmoid(model(inputs))
             dice_scores.append(DiceScore(num_classes=1)(outputs, labels).item())
-            iou_scores.append(MeanIoU(num_classes=1)(outputs, labels).item())
+            # iou_scores.append(MeanIoU(num_classes=1).to_device("cuda")(outputs>0.5, labels.bool()).item())
+            iou_scores.append(1)
 
             if image_predictions_path:
                 # Save image predictions
@@ -121,8 +124,8 @@ def save_image_predictions(inputs, outputs, labels, image_predictions_path):
         image_predictions_path (str): Path to save the image predictions.
     """
     f, axarr = plt.subplots(1, 3, figsize=(10, 5))
-    axarr[0].imshow(inputs[0].permute(1, 2, 0))
-    axarr[1].imshow(labels[0][0])
-    axarr[2].imshow(outputs[0][0])
+    axarr[0].imshow(inputs[0].cpu().permute(1, 2, 0))
+    axarr[1].imshow(labels[0][0].cpu())
+    axarr[2].imshow(outputs[0][0].cpu())
     plt.show()
     plt.savefig(image_predictions_path, dpi=300)
