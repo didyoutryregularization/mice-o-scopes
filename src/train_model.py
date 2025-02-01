@@ -57,11 +57,7 @@ def train_model(cfg: CfgNode):
 
     optimizer_class = get_optimizer_class(optimizer_string=cfg.TRAINING.optimizer)
     optimizer = optimizer_class(
-<<<<<<< HEAD
-        model.parameters(), lr = cfg.TRAINING.learning_rate
-=======
         model.parameters(), cfg.TRAINING.learning_rate
->>>>>>> 948aba16d053ea487918193c824d0d0347266235
     )
 
     scaler = torch.amp.GradScaler(device="cuda")

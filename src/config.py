@@ -5,15 +5,7 @@ _C = CN()
 
 _C.TRAINING = CN()
 # Number of Epochs
-<<<<<<< HEAD
-_C.TRAINING.EPOCHS = 2
-# Initial Learning Rate for Scheduler
-_C.TRAINING.inital_learning_rate = 0.001
-# Final Learning Rate for Scheduler
-_C.TRAINING.final_learning_rate = 0.00001
-=======
 _C.TRAINING.epochs = 500
->>>>>>> 948aba16d053ea487918193c824d0d0347266235
 # If to use CUdNN Benchmark
 _C.TRAINING.cudnn_benchmark = True
 # Which loss function to use
@@ -21,15 +13,9 @@ _C.TRAINING.loss_function = "dice"  # one out [dice, dicece, ce]
 # Optimizer to use
 _C.TRAINING.optimizer = "adam"  # Adam, Adamw, RMSprop
 # Optimizer hyperparameters
-<<<<<<< HEAD
-_C.TRAINING.learning_rate = 0.001
-# Batch size
-_C.TRAINING.batch_size = 2
-=======
 _C.TRAINING.learning_rate = 0.0005
 # batchsize
 _C.TRAINING.batch_size = 4
->>>>>>> 948aba16d053ea487918193c824d0d0347266235
 
 _C.MODEL = CN()
 # Feature sizes of UNet
