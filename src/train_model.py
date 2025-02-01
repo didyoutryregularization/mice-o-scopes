@@ -112,15 +112,23 @@ def train_model(cfg: CfgNode):
         loss_history_train, f"{experiment_folder}/metrics/loss_history_train.pth"
     )
     torch.save(loss_history_val, f"{experiment_folder}/metrics/loss_history_val.pth")
+    # Test models
+    test_best_model(
+        experiment_folder,
+        cfg,
+        dataloader_test,
+        "dice"
+    )
     # Test model
     test_best_model(
         experiment_folder,
         cfg,
         dataloader_test,
+        "iou"
     )
 
 
-def test_best_model(experiment_folder: str, cfg: CfgNode, dataloader_test: DataLoader, model_metric: str = "dice"):
+def test_best_model(experiment_folder: str, cfg: CfgNode, dataloader_test: DataLoader, model_metric: str):
     """
     Test the best models on the test set. There is model_best_dice.pth and model_best_iou.pth in the checkpoints folder.
 

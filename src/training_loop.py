@@ -4,7 +4,8 @@ from typing import List
 import torch
 from torch.amp import autocast
 import torch.nn.functional as F
-from torchmetrics.segmentation import DiceScore, MeanIoU
+from monai.metrics import compute_iou, DiceMetric
+# from torchmetrics.segmentation import DiceScore, MeanIoU
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -94,6 +95,7 @@ def compute_evaluation(model, dataloader_evaluation, image_predictions_path=Fals
     """
     dice_scores = []
     iou_scores = []
+    dice_metric = DiceMetric(include_background=True, reduction="mean")
 
     model.eval()
     with torch.no_grad():
@@ -102,9 +104,8 @@ def compute_evaluation(model, dataloader_evaluation, image_predictions_path=Fals
             inputs = inputs.cuda()
             labels = labels.cuda().float()
             outputs = F.sigmoid(model(inputs))
-            dice_scores.append(DiceScore(num_classes=1)(outputs, labels).item())
-            # iou_scores.append(MeanIoU(num_classes=1).to_device("cuda")(outputs>0.5, labels.bool()).item())
-            iou_scores.append(1)
+            dice_scores.append(dice_metric(outputs>0.5, labels).item())
+            iou_scores.append(compute_iou(outputs>0.5, labels).item())
 
             if image_predictions_path:
                 # Save image predictions
