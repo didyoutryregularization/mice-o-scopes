@@ -17,6 +17,7 @@ import PIL
 PIL.Image.MAX_IMAGE_PIXELS = 9331200009
 
 from src.config import get_cfg_defaults
+from src.plots import save_loss_plot
 from src.dataloader import MiceHeartDataset
 from src.miscellaneous import (
     get_loss_function,
@@ -127,6 +128,10 @@ def train_model(cfg: CfgNode):
         "iou"
     )
 
+    save_loss_plot(save_path=f"{experiment_folder}/metrics/loss_curves.png")
+
+
+
 
 def test_best_model(experiment_folder: str, cfg: CfgNode, dataloader_test: DataLoader, model_metric: str):
     """
@@ -141,20 +146,20 @@ def test_best_model(experiment_folder: str, cfg: CfgNode, dataloader_test: DataL
     model.load_state_dict(
         torch.load(f"{experiment_folder}/checkpoints/model_best_{model_metric}.pth")
     )
-    score_test, _ = compute_evaluation(
+    score_test_dice, score_test_iou = compute_evaluation(
         model,
         dataloader_test,
         image_predictions_path=f"{experiment_folder}/predictions/{model_metric}",
     )
 
     print(
-        f"{model_metric} Score on test set: {score_test}"
+        f"Best {model_metric} model on test set: Dice: {score_test_dice} IoU: {score_test_iou}"
     )
 
     # Save dice and iou to metrics folder
-    metrics = {f"{model_metric}_score_test": score_test}
+    metrics_json = {f"{model_metric}_score_test": score_test_dice if model_metric=="dice" else score_test_iou}
     with open(f"{experiment_folder}/metrics/test_score_{model_metric}.json", "w") as f:
-        json.dump(metrics, f)
+        json.dump(metrics_json, f)
 
 
 if __name__ == "__main__":

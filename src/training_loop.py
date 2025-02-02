@@ -5,11 +5,8 @@ import torch
 from torch.amp import autocast
 import torch.nn.functional as F
 from monai.metrics import compute_iou, DiceMetric
+from src.plots import save_image_predictions
 # from torchmetrics.segmentation import DiceScore, MeanIoU
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-
 
 def train_one_epoch(
     model, dataloader_train, optimizer, scaler, seg_loss, scheduler=None
@@ -111,22 +108,5 @@ def compute_evaluation(model, dataloader_evaluation, image_predictions_path=Fals
                 # Save image predictions
                 save_image_predictions(inputs, outputs, labels, f"{image_predictions_path}/{i}.png")
 
+    print(f"iou: {iou_scores}")
     return statistics.mean(dice_scores), statistics.mean(iou_scores)
-
-
-def save_image_predictions(inputs, outputs, labels, image_predictions_path):
-    """
-    Save image predictions to disk.
-
-    Args:
-        inputs (torch.Tensor): Input images.
-        outputs (torch.Tensor): Predicted masks.
-        labels (torch.Tensor): Ground truth masks.
-        image_predictions_path (str): Path to save the image predictions.
-    """
-    f, axarr = plt.subplots(1, 3, figsize=(10, 5))
-    axarr[0].imshow(inputs[0].cpu().permute(1, 2, 0))
-    axarr[1].imshow(labels[0][0].cpu())
-    axarr[2].imshow(outputs[0][0].cpu())
-    plt.show()
-    plt.savefig(image_predictions_path, dpi=300)
