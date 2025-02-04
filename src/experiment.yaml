@@ -1,2 +1,0 @@
-TRAINING:
-  loss_function: "dice_ce"
