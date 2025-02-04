@@ -41,19 +41,22 @@ def train_model(cfg: CfgNode):
     model.cuda()
 
     dataset_train = MiceHeartDataset(
-        image_path=cfg.DATA.image_path_train, resolution=cfg.DATA.resolution
+        image_path=cfg.DATA.image_path_train, resolution_inputs=cfg.DATA.resolution_inputs, resolution_outputs=
+        cfg.DATA.resolution_outputs
     )
     dataloader_train = DataLoader(
         dataset_train, batch_size=cfg.TRAINING.batch_size, shuffle=True, drop_last=True
     )
 
     dataset_val = MiceHeartDataset(
-        image_path=cfg.DATA.image_path_val, resolution=cfg.DATA.resolution
+        image_path=cfg.DATA.image_path_val, resolution_inputs=cfg.DATA.resolution, resolution_outputs=
+        cfg.DATA.resolution_outputs
     )
     dataloader_val = DataLoader(dataset_val, batch_size=1)
 
     dataset_test = MiceHeartDataset(
-        image_path=cfg.DATA.image_path_test, resolution=cfg.DATA.resolution
+        image_path=cfg.DATA.image_path_test, resolution_inputs=cfg.DATA.resolution, resolution_outputs=
+        cfg.DATA.resolution_outputs
     )
     dataloader_test = DataLoader(dataset_test, batch_size=1)
 

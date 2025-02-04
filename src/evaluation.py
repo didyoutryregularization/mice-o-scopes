@@ -6,6 +6,8 @@ from torch.utils.data import DataLoader
 from yacs.config import CfgNode
 from src.u_net import UNet
 import json
+import torch.nn.functional as F
+
 
 def resize_prediction(prediction, resolution):
     """
@@ -37,8 +39,11 @@ def compute_evaluation(model, dataloader, image_predictions_path=False):
             inputs = inputs.cuda()
             labels = labels.cuda().float()
             outputs = F.sigmoid(model(inputs))
-            dice_scores.append(dice_metric(outputs>0.5, labels).item())
-            iou_scores.append(compute_iou(outputs>0.5, labels).item())
+            if outputs.shape[-2:]!=labels.shape[-2:]:
+                outputs = F.interpolate(outputs, size=labels.shape[-2:], mode='nearest-exact')
+            outputs = outputs>0.5
+            dice_scores.append(dice_metric(outputs, labels).item())
+            iou_scores.append(compute_iou(outputs, labels).item())
 
             if image_predictions_path:
                 # Save image predictions
@@ -46,11 +51,6 @@ def compute_evaluation(model, dataloader, image_predictions_path=False):
 
     return statistics.mean(dice_scores), statistics.mean(iou_scores)
 
-def evaluate_original_size(dataloader_evaluation):
-    """
-    Evaluate the prediction at the original size
-    """
-    pass
 
 def test_best_model(experiment_folder: str, cfg: CfgNode, dataloader: DataLoader, model_mode: str):
     """

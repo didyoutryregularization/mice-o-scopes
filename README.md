@@ -17,5 +17,10 @@ The initial approach involves training a **vanilla U-Net** on downsampled images
 | U-Net | Dice | 0.0005 | 256×256 | No | TBD | TBD |
 | U-Net | DiceCE | 0.0005 | 256×256 | No | TBD | TBD |
 | U-Net | GeneralizedDice | 0.0005 | 256×256 | No | TBD | TBD |
+| U-Net | GeneralizedDice | 0.0005 | 512x512 | No | 0.88516 | 0.79883 |
 
 (*TBD: Results pending evaluation.*)
+
+
+![Input Image downscaled, Ground Truth Mask, Predicted Mask](/miceoscope.png "Title")
+Input Image downscaled, Ground Truth Mask, Predicted Mask

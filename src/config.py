@@ -29,7 +29,8 @@ _C.DATA.image_path_val = "data/split/val"
 # Path to test images
 _C.DATA.image_path_test = "data/split/test"
 # Resolution of images
-_C.DATA.resolution = None  # If not None, resize images to this resolution
+_C.DATA.resolution_inputs = None  # If not None, resize images to this resolution
+_C.DATA.resolution_outputs = None  # If not None, resize images to this resolution
 
 
 
