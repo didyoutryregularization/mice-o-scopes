@@ -6,7 +6,7 @@ import numpy as np
 
 
 class MiceHeartDataset(Dataset):
-    def __init__(self, image_path, resolution=256, transform=None):
+    def __init__(self, image_path, resolution=None, transform=None):
         self.image_path = image_path
         self.image_names = os.listdir(image_path + "/original")
         self.transform = transform
@@ -16,25 +16,15 @@ class MiceHeartDataset(Dataset):
         return len(self.image_names)
 
     def __getitem__(self, idx):
-        image_x = ToTensor()(
-            (
-                np.array(
-                    Image.open(
-                        self.image_path + "/original/" + self.image_names[idx]
-                    ).resize((self.resolution, self.resolution))
-                )
-            )
-        )
-        image_y = ToTensor()(
-            (
-                np.array(
-                    Image.open(
-                        self.image_path + "/labeled/" + self.image_names[idx]
-                    ).resize((self.resolution, self.resolution)),
-                    dtype=bool,
-                )
-            )
-        )
+        image_x = Image.open(self.image_path + "/original/" + self.image_names[idx])
+        image_y = Image.open(self.image_path + "/labeled/" + self.image_names[idx])
+
+        if self.resolution:
+            image_x = image_x.resize((self.resolution, self.resolution))
+            image_y = image_y.resize((self.resolution, self.resolution))
+
+        image_x = ToTensor()(np.array(image_x))
+        image_y = ToTensor()(np.array(image_y, dtype=bool))
 
         if self.transform:
             image_x = self.transform(image_x)

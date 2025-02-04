@@ -1,6 +1,6 @@
 import sys
 import os
-
+from src.evaluation import test_best_model
 # Get the root of the project directory (assuming this script is inside the 'src' directory)
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -24,7 +24,8 @@ from src.miscellaneous import (
     get_optimizer_class,
     create_folder_structure,
 )
-from src.training_loop import compute_evaluation, train_one_epoch, validate_one_epoch
+from src.training_loop import train_one_epoch, validate_one_epoch
+from src.evaluation import compute_evaluation
 from src.u_net import UNet
 import json
 
@@ -130,36 +131,6 @@ def train_model(cfg: CfgNode):
 
     save_loss_plot(save_path=f"{experiment_folder}/metrics/loss_curves.png", train_loss=loss_history_train, val_loss=loss_history_val)
 
-
-
-
-def test_best_model(experiment_folder: str, cfg: CfgNode, dataloader_test: DataLoader, model_metric: str):
-    """
-    Test the best models on the test set. There is model_best_dice.pth and model_best_iou.pth in the checkpoints folder.
-
-    Args:
-        experiment_folder (str): Path to the experiment folder.
-    """
-    # Test best model of model metric
-    model = UNet(cfg.MODEL.feature_sizes)
-    model.cuda()
-    model.load_state_dict(
-        torch.load(f"{experiment_folder}/checkpoints/model_best_{model_metric}.pth")
-    )
-    score_test_dice, score_test_iou = compute_evaluation(
-        model,
-        dataloader_test,
-        image_predictions_path=f"{experiment_folder}/predictions/{model_metric}",
-    )
-
-    print(
-        f"Best {model_metric} model on test set: Dice: {score_test_dice} IoU: {score_test_iou}"
-    )
-
-    # Save dice and iou to metrics folder
-    metrics_json = {f"{model_metric}_score_test": score_test_dice if model_metric=="dice" else score_test_iou}
-    with open(f"{experiment_folder}/metrics/test_score_{model_metric}.json", "w") as f:
-        json.dump(metrics_json, f)
 
 
 if __name__ == "__main__":

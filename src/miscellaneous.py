@@ -4,6 +4,7 @@ import monai.losses as losses
 import torch.nn as nn
 import torch.optim as optim
 import shutil
+import PIL
 
 
 def get_optimizer_class(optimizer_string: str):
@@ -86,5 +87,19 @@ def copy_config_files(experiment_folder: str):
     """
     # Copy config.py
     shutil.copy("src/config.py", os.path.join(experiment_folder, "config"))
-    # Copy experiment.yaml
-    shutil.copy("src/experiment.yaml", os.path.join(experiment_folder, "config"))
+
+def save_resized_images(image_path: str, output_path:str, resolution: tuple):
+    """
+    Resize all images in a directory and save them to a new directory.
+    Args:
+        image_path (str): Path to the directory containing images to resize.
+        output_path (str): Path to the directory to save the resized images.
+        resolution (tuple): Target resolution as (width, height).
+    """
+
+    for file in os.listdir(image_path):
+        image = PIL.Image.open(f"{image_path}/{file}")
+        image = image.resize(resolution, PIL.Image.LANCZOS)
+        image.save(f"{output_path}/{file}")
+
+    print("Images-resizing successfully!")

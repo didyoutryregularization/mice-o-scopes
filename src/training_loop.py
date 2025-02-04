@@ -76,36 +76,3 @@ def validate_one_epoch(model, dataloader_val, seg_loss) -> List[int]:
             loss_hist_val.append(loss_value_test.item())
 
     return loss_hist_val
-
-
-def compute_evaluation(model, dataloader_evaluation, image_predictions_path=False):
-    """
-    Compute evaluation metric for model.
-
-    Args:
-        model (torch.nn.Module): The UNet model. Either "dice" or "iou"
-        dataloader_evaluation (DataLoader): DataLoader for evaluation data.
-        image_predictions_path (str): Path to save the image predictions.
-
-    Returns:
-        int: Evaluation metric.
-    """
-    dice_scores = []
-    iou_scores = []
-    dice_metric = DiceMetric(include_background=True, reduction="mean")
-
-    model.eval()
-    with torch.no_grad():
-        for i, data in enumerate(dataloader_evaluation):
-            inputs, labels = data
-            inputs = inputs.cuda()
-            labels = labels.cuda().float()
-            outputs = F.sigmoid(model(inputs))
-            dice_scores.append(dice_metric(outputs>0.5, labels).item())
-            iou_scores.append(compute_iou(outputs>0.5, labels).item())
-
-            if image_predictions_path:
-                # Save image predictions
-                save_image_predictions(inputs, outputs, labels, f"{image_predictions_path}/{i}.png")
-
-    return statistics.mean(dice_scores), statistics.mean(iou_scores)
