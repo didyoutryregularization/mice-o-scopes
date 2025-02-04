@@ -108,5 +108,4 @@ def compute_evaluation(model, dataloader_evaluation, image_predictions_path=Fals
                 # Save image predictions
                 save_image_predictions(inputs, outputs, labels, f"{image_predictions_path}/{i}.png")
 
-    print(f"iou: {iou_scores}")
     return statistics.mean(dice_scores), statistics.mean(iou_scores)

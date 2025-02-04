@@ -19,9 +19,9 @@ def get_optimizer_class(optimizer_string: str):
 
 def get_loss_function(loss_function_string: str):
     LOSS_FUNCTIONS = {
-        "cross_entropy": nn.BCEWithLogitsLoss(),
         "dice": losses.DiceLoss(sigmoid=True),
         "dice_ce": losses.DiceCELoss(sigmoid=True),
+        "generalized_dice": losses.GeneralizedDiceLoss(sigmoid=True)
     }
 
     if loss_function_string not in LOSS_FUNCTIONS:

@@ -128,7 +128,7 @@ def train_model(cfg: CfgNode):
         "iou"
     )
 
-    save_loss_plot(save_path=f"{experiment_folder}/metrics/loss_curves.png")
+    save_loss_plot(save_path=f"{experiment_folder}/metrics/loss_curves.png", train_loss=loss_history_train, val_loss=loss_history_val)
 
 
 
