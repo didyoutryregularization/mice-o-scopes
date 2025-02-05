@@ -1,6 +1,7 @@
 import torch
 from torch import nn
-
+import torch.nn.functional as F
+from torchvision.transforms import v2
 
 class Block(nn.Module):
     def __init__(self, in_channel: int, out_channel: int):
@@ -56,8 +57,7 @@ class Decoder(nn.Module):
                 for i in range(len(feature_sizes) - 1)
             ]
         )
-        self.final_block = Block(feature_sizes[-1], 1)
-        self.final_layer = nn.Conv2d(1, 1, 3, padding=1)
+        self.final_block = Block(feature_sizes[-1], 3)
 
     def forward(self, encoder_features):
         x = encoder_features[-1]
@@ -66,7 +66,6 @@ class Decoder(nn.Module):
             x = torch.cat([x, encoder_features[-i - 2]], dim=1)
             x = self.dec_blocks[i](x)
         x = self.final_block(x)
-        x = self.final_layer(x)
         return x
 
 
@@ -77,6 +76,24 @@ class UNet(nn.Module):
         self.decoder = Decoder(
             feature_sizes=feature_sizes[::-1][:-1]
         )  # Reverse and skip last
+        self.final_block = Block(6, 1)
+        self.final_layer = nn.Conv2d(1, 1, 3, padding=1)  # So that final layer is not relu
 
-    def forward(self, inputs):
-        return self.decoder(self.encoder(inputs))
+    def forward(self, x: torch.tensor):
+        original_image = x.clone()
+        resolution = x.shape[-2:]
+        print(f"resolution of x: {resolution}")
+        x = v2.Resize(size=(512, 512))(x)
+        x = self.decoder(self.encoder(x))
+        x = F.interpolate(x, size=resolution, mode="bilinear", align_corners=False)
+        print(f"Shape of x after decoder incl. interpolation: {x.shape}")
+        x = torch.cat([original_image, x], dim=1)
+        print(f"Shape of x after cat: {x.shape}")
+        x = self.final_block(x)
+        print(f"Shape of x after final block: {x.shape}")
+        x = self.final_layer(x)
+        print(f"Shape of x after final layer: {x.shape}")
+        return x
+
+
+
