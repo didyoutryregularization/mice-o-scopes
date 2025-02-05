@@ -79,11 +79,9 @@ class UNet(nn.Module):
         self.final_block = Block(6, 1)
         self.final_layer = nn.Conv2d(1, 1, 3, padding=1)  # So that final layer is not relu
 
-    def forward(self, x: torch.tensor):
+    def forward(self, x: torch.tensor, resolution: tuple):
         original_image = x.clone()
-        resolution = x.shape[-2:]
         print(f"resolution of x: {resolution}")
-        x = v2.Resize(size=(512, 512))(x)
         x = self.decoder(self.encoder(x))
         x = F.interpolate(x, size=resolution, mode="bilinear", align_corners=False)
         print(f"Shape of x after decoder incl. interpolation: {x.shape}")
