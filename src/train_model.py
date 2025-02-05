@@ -39,24 +39,22 @@ def train_model(cfg: CfgNode):
 
     model = UNet(cfg.MODEL.feature_sizes)
     model.cuda()
-
+    
+    # TODO: put this in a separate function
     dataset_train = MiceHeartDataset(
-        image_path=cfg.DATA.image_path_train, resolution_inputs=cfg.DATA.resolution_inputs, resolution_outputs=
-        cfg.DATA.resolution_outputs
+        image_path=cfg.DATA.image_path_train, image_path_input=cfg.DATA.image_path_input_train, image_path_target=cfg.DATA.image_path_target
     )
     dataloader_train = DataLoader(
         dataset_train, batch_size=cfg.TRAINING.batch_size, shuffle=True, drop_last=True, collate_fn=custom_collate
     )
 
     dataset_val = MiceHeartDataset(
-        image_path=cfg.DATA.image_path_val, resolution_inputs=cfg.DATA.resolution, resolution_outputs=
-        cfg.DATA.resolution_outputs
+        image_path=cfg.DATA.image_path_val, image_path_input=cfg.DATA.image_path_input_val, image_path_target=cfg.DATA.image_path_target
     )
     dataloader_val = DataLoader(dataset_val, batch_size=1, collate_fn=custom_collate)
 
     dataset_test = MiceHeartDataset(
-        image_path=cfg.DATA.image_path_test, resolution_inputs=cfg.DATA.resolution, resolution_outputs=
-        cfg.DATA.resolution_outputs
+        image_path=cfg.DATA.image_path_test, image_path_input=cfg.DATA.image_path_input_test, image_path_target=cfg.DATA.image_path_target
     )
     dataloader_test = DataLoader(dataset_test, batch_size=1, collate_fn=custom_collate)
 

@@ -23,15 +23,13 @@ _C.MODEL.feature_sizes = (3, 64, 128, 256, 512, 1024)
 
 _C.DATA = CN()
 # Path to training images
-_C.DATA.image_path_train = "data/split/train"
+_C.DATA.image_path_input_train = "data/split/train"
 # Path to validation images
-_C.DATA.image_path_val = "data/split/val"
+_C.DATA.image_path_input_val = "data/split/val"
 # Path to test images
-_C.DATA.image_path_test = "data/split/test"
-# Resolution of images
-_C.DATA.resolution_inputs = None  # If not None, resize images to this resolution
-_C.DATA.resolution_outputs = None  # If not None, resize images to this resolution
-
+_C.DATA.image_path_input_test = "data/split/test"
+# Path to training masks
+_C.DATA.image_path_target = "data/"
 
 
 def get_cfg_defaults():
