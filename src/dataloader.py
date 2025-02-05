@@ -4,6 +4,11 @@ from torchvision.transforms import ToTensor
 from PIL import Image
 import numpy as np
 
+def custom_collate(batch):
+    data = [item[0] for item in batch]
+    target = [item[1] for item in batch]
+    return [data, target]
+
 
 class MiceHeartDataset(Dataset):
     def __init__(self, image_path, resolution_inputs=None, resolution_outputs=None, transform=None):

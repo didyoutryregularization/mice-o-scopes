@@ -18,7 +18,7 @@ PIL.Image.MAX_IMAGE_PIXELS = 9331200009
 
 from src.config import get_cfg_defaults
 from src.plots import save_loss_plot
-from src.dataloader import MiceHeartDataset
+from src.dataloader import MiceHeartDataset, custom_collate
 from src.miscellaneous import (
     get_loss_function,
     get_optimizer_class,
@@ -45,20 +45,20 @@ def train_model(cfg: CfgNode):
         cfg.DATA.resolution_outputs
     )
     dataloader_train = DataLoader(
-        dataset_train, batch_size=cfg.TRAINING.batch_size, shuffle=True, drop_last=True
+        dataset_train, batch_size=cfg.TRAINING.batch_size, shuffle=True, drop_last=True, collate_fn=custom_collate
     )
 
     dataset_val = MiceHeartDataset(
         image_path=cfg.DATA.image_path_val, resolution_inputs=cfg.DATA.resolution, resolution_outputs=
         cfg.DATA.resolution_outputs
     )
-    dataloader_val = DataLoader(dataset_val, batch_size=1)
+    dataloader_val = DataLoader(dataset_val, batch_size=1, collate_fn=custom_collate)
 
     dataset_test = MiceHeartDataset(
         image_path=cfg.DATA.image_path_test, resolution_inputs=cfg.DATA.resolution, resolution_outputs=
         cfg.DATA.resolution_outputs
     )
-    dataloader_test = DataLoader(dataset_test, batch_size=1)
+    dataloader_test = DataLoader(dataset_test, batch_size=1, collate_fn=custom_collate)
 
     optimizer_class = get_optimizer_class(optimizer_string=cfg.TRAINING.optimizer)
     optimizer = optimizer_class(
