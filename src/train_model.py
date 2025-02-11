@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 from src.evaluation import test_best_model
 # Get the root of the project directory (assuming this script is inside the 'src' directory)
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -41,22 +42,19 @@ def train_model(cfg: CfgNode):
     model.cuda()
 
     dataset_train = MiceHeartDataset(
-        image_path=cfg.DATA.image_path_train, resolution_inputs=cfg.DATA.resolution_inputs, resolution_outputs=
-        cfg.DATA.resolution_outputs
+        image_path=cfg.DATA.image_path_train, transform=cfg.TRAINING.transform
     )
     dataloader_train = DataLoader(
-        dataset_train, batch_size=cfg.TRAINING.batch_size, shuffle=True, drop_last=True
+        dataset_train, batch_size=cfg.TRAINING.batch_size, shuffle=True, drop_last=True, pin_memory=True
     )
 
     dataset_val = MiceHeartDataset(
-        image_path=cfg.DATA.image_path_val, resolution_inputs=cfg.DATA.resolution, resolution_outputs=
-        cfg.DATA.resolution_outputs
+        image_path=cfg.DATA.image_path_val
     )
-    dataloader_val = DataLoader(dataset_val, batch_size=1)
+    dataloader_val = DataLoader(dataset_val, batch_size=1, pin_memory=True)
 
     dataset_test = MiceHeartDataset(
-        image_path=cfg.DATA.image_path_test, resolution_inputs=cfg.DATA.resolution, resolution_outputs=
-        cfg.DATA.resolution_outputs
+        image_path=cfg.DATA.image_path_test
     )
     dataloader_test = DataLoader(dataset_test, batch_size=1)
 
@@ -76,6 +74,8 @@ def train_model(cfg: CfgNode):
     best_dice_score = 0
 
     for i in range(cfg.TRAINING.epochs):
+        epoch_start = time.time()
+
         # Train model
         loss_values_train = train_one_epoch(
             model=model,
@@ -83,6 +83,7 @@ def train_model(cfg: CfgNode):
             optimizer=optimizer,
             scaler=scaler,
             seg_loss=seg_loss,
+            use_soft_labels=cfg.TRAINING.use_soft_labels
         )
         loss_history_train.append(statistics.mean(loss_values_train))
 
@@ -91,7 +92,7 @@ def train_model(cfg: CfgNode):
         )
         loss_history_val.append(statistics.mean(loss_values_val))
 
-        dice_score, iou_score = compute_evaluation(model, dataloader_val)
+        dice_score, iou_score = compute_evaluation(model, dataloader_val, resolution=cfg.DATA.resolution)
 
         # TODO: put this in a separate function
         if dice_score > best_dice_score:
@@ -107,9 +108,10 @@ def train_model(cfg: CfgNode):
                 model.state_dict(),
                 f"{experiment_folder}/checkpoints/model_best_iou.pth",
             )
+        epoch_end = time.time()
 
         print(
-            f"Epoch {i + 1}/{cfg.TRAINING.epochs}: Train loss: {statistics.mean(loss_values_train)}, Validate loss: {statistics.mean(loss_values_val)}, Dice Score: {dice_score}, IoU Score: {iou_score}"
+            f"Epoch {i + 1}/{cfg.TRAINING.epochs}: Train loss: {statistics.mean(loss_values_train)}, Validate loss: {statistics.mean(loss_values_val)}, Dice Score: {dice_score}, IoU Score: {iou_score}, Duration: {epoch_end - epoch_start}"
         )
 
     # Save loss history
@@ -138,8 +140,7 @@ def train_model(cfg: CfgNode):
 
 if __name__ == "__main__":
     cfg = get_cfg_defaults()
-    cfg.merge_from_file("src/experiment.yaml")
-    cfg.freeze()
+
     print(cfg)
 
     train_model(cfg=cfg)

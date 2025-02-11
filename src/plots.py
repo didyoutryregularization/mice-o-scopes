@@ -24,7 +24,7 @@ def save_loss_plot(save_path, train_loss, val_loss):
     plt.close()  # Close the plot to free memory
 
 
-def save_image_predictions(inputs, outputs, labels, image_predictions_path):
+def save_image_predictions(inputs, outputs, labels, image_predictions_path: str):
     """
     Save image predictions to disk.
 
@@ -40,3 +40,5 @@ def save_image_predictions(inputs, outputs, labels, image_predictions_path):
     axarr[2].imshow(outputs[0][0].cpu()>0.5)
     plt.savefig(image_predictions_path, dpi=300)
     plt.close()  # Close the plot to free memory
+    plt.imshow(outputs[0][0].cpu()>0.5, cmap="grey")
+    plt.savefig(image_predictions_path.replace(".png", "_prediction.png"), dpi=300)

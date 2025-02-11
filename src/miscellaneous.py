@@ -5,10 +5,12 @@ import torch.nn as nn
 import torch.optim as optim
 import shutil
 import PIL
+PIL.Image.MAX_IMAGE_PIXELS = 9331200009
+
 
 
 def get_optimizer_class(optimizer_string: str):
-    OPTIMIZERS = {"adam": optim.Adam, "sgd": optim.SGD, "rmsprop": optim.RMSprop}
+    OPTIMIZERS = {"adam": optim.Adam, "adamw": optim.AdamW, "sgd": optim.SGD, "rmsprop": optim.RMSprop}
 
     if optimizer_string not in OPTIMIZERS:
         raise ValueError(
@@ -99,7 +101,7 @@ def save_resized_images(image_path: str, output_path:str, resolution: tuple):
 
     for file in os.listdir(image_path):
         image = PIL.Image.open(f"{image_path}/{file}")
-        image = image.resize(resolution, PIL.Image.LANCZOS)
+        image = image.resize(resolution)
         image.save(f"{output_path}/{file}")
 
     print("Images-resizing successfully!")

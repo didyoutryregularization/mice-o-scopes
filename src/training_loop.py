@@ -9,7 +9,7 @@ from src.plots import save_image_predictions
 # from torchmetrics.segmentation import DiceScore, MeanIoU
 
 def train_one_epoch(
-    model, dataloader_train, optimizer, scaler, seg_loss, scheduler=None
+    model, dataloader_train, optimizer, scaler, seg_loss, scheduler=None, use_soft_labels=False
 ) -> List[int]:
     """
     Train the encoder and decoder for one epoch.
@@ -33,6 +33,8 @@ def train_one_epoch(
         inputs, labels = data
         inputs = inputs.cuda()
         labels = labels.cuda().float()
+        if use_soft_labels:
+            labels = labels * 0.8 + 0.2  # Adjusts 1 -> 1 and 0 -> 0.2
         optimizer.zero_grad()
         with autocast("cuda"):
             outputs = model(inputs)

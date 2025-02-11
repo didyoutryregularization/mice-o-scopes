@@ -7,6 +7,9 @@ from yacs.config import CfgNode
 from src.u_net import UNet
 import json
 import torch.nn.functional as F
+import PIL
+PIL.Image.MAX_IMAGE_PIXELS = 9331200009
+
 
 
 def resize_prediction(prediction, resolution):
@@ -16,7 +19,7 @@ def resize_prediction(prediction, resolution):
     prediction_resized =  torch.nn.functional.interpolate(prediction, size=resolution, mode='nearest')
     return prediction_resized!=0  # Binarize the prediction
 
-def compute_evaluation(model, dataloader, image_predictions_path=False):
+def compute_evaluation(model, dataloader, resolution, image_predictions_path=False):
     """
     Compute evaluation metric for model.
 
@@ -37,7 +40,12 @@ def compute_evaluation(model, dataloader, image_predictions_path=False):
         for i, data in enumerate(dataloader):
             inputs, labels = data
             inputs = inputs.cuda()
+            if image_predictions_path:
+                original_inputs = inputs.clone()
             labels = labels.cuda().float()
+            if inputs.shape[-1] != resolution:
+                print("downsize image")
+                inputs = F.interpolate(inputs, size=(resolution, resolution), mode='area')
             outputs = F.sigmoid(model(inputs))
             if outputs.shape[-2:]!=labels.shape[-2:]:
                 outputs = F.interpolate(outputs, size=labels.shape[-2:], mode='nearest-exact')
@@ -47,7 +55,7 @@ def compute_evaluation(model, dataloader, image_predictions_path=False):
 
             if image_predictions_path:
                 # Save image predictions
-                save_image_predictions(inputs, outputs, labels, f"{image_predictions_path}/{i}.png")
+                save_image_predictions(original_inputs, outputs, labels, f"{image_predictions_path}/{i}.png")
 
     return statistics.mean(dice_scores), statistics.mean(iou_scores)
 
@@ -71,6 +79,7 @@ def test_best_model(experiment_folder: str, cfg: CfgNode, dataloader: DataLoader
     score_test_dice, score_test_iou = compute_evaluation(
         model,
         dataloader,
+        resolution=cfg.DATA.resolution,
         image_predictions_path=f"{experiment_folder}/predictions/{model_mode}",
     )
 
