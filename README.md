@@ -14,13 +14,13 @@ The initial approach involves training a **vanilla U-Net** on downsampled images
 ## Results
 | Model | Loss Function | Learning Rate | Input Resolution | Data Augmentation | Dice | IoU |
 |-------|-------------|--------------|----------------|----------------|------|----|
-| U-Net | Dice | 0.0005 | 256×256 | No | TBD | TBD |
-| U-Net | DiceCE | 0.0005 | 256×256 | No | TBD | TBD |
-| U-Net | GeneralizedDice | 0.0005 | 256×256 | No | TBD | TBD |
+| U-Net | Dice | 0.0005 | 256×256 | No | 0.753 | - |
+| U-Net | DiceCE | 0.0005 | 256×256 | No | 0.754 | 0.614 |
+| U-Net | GeneralizedDice | 0.0005 | 256×256 | No | 0.739 | 0.598 |
 | U-Net | GeneralizedDice | 0.0005 | 512x512 | No | 0.88516 | 0.79883 |
+| U-Net | GeneralizedDice | 0.0005 | 1024x1024 | No | 0.867 | 0.77 |
 
-(*TBD: Results pending evaluation.*)
-
+The calculated metrics suggest that a resolution higher than 512x512 pixels does not lead to better performance of the models.
 
 ![Input Image downscaled, Ground Truth Mask, Predicted Mask](/miceoscope.png "Title")
 Input Image downscaled, Ground Truth Mask, Predicted Mask
