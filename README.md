@@ -23,4 +23,3 @@ The initial approach involves training a **vanilla U-Net** on downsampled images
 The calculated metrics suggest that a resolution higher than 512x512 pixels does not lead to better performance of the models.
 
 ![Input Image downscaled, Ground Truth Mask, Predicted Mask](/miceoscope.png "Title")
-Input Image downscaled, Ground Truth Mask, Predicted Mask
